@@ -42,7 +42,7 @@ export default function Index() {
       <Link href="/login" style={styles.link}>
         Нэвтрэх
       </Link>
-      <Link href="/register" style={styles.link}>
+      <Link href="/verifyOtp" style={styles.link}>
         Бүртгүүлэх
       </Link>
     </SafeAreaView>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "92490570946",
+    "project_id": "techpack-dea36",
+    "storage_bucket": "techpack-dea36.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92490570946:android:ba167aa6f40f49810aef5b",
+        "android_client_info": {
+          "package_name": "com.temuulen_9.techPack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWO6gC3ZokDf-ZHQ0EDlSlMDTXeufIkB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

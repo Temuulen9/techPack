@@ -8,7 +8,7 @@ export default function RootLayout() {
         options={{ headerShown: false, title: "Нүүр хуудас" }}
       />
       <Stack.Screen name="login" options={{ title: "Нэвтрэх" }} />
-      <Stack.Screen name="register" options={{ title: "Бүртгүүлэх" }} />
+      <Stack.Screen name="verifyOtp" options={{ title: "Бүртгүүлэх" }} />
       <Stack.Screen
         name="(app)"
         options={{

@@ -10,8 +10,8 @@ import {
 } from "react-native";
 
 export default function Index() {
-  const [text, onChangeText] = React.useState("");
-  const [number, onChangeNumber] = React.useState("");
+  const [phoneNumber, onChangePhoneNumber] = React.useState("");
+  const [password, onChangePassword] = React.useState("");
 
   const styles = StyleSheet.create({
     safeAreaView: {
@@ -35,23 +35,32 @@ export default function Index() {
       <ScrollView>
         <TextInput
           style={styles.input}
-          onChangeText={onChangeText}
+          onChangeText={onChangePhoneNumber}
           placeholder="Утасны дугаар"
           placeholderTextColor="black"
-          keyboardType="numeric"
-          value={text}
+          keyboardType="phone-pad"
+          value={phoneNumber}
         />
         <TextInput
           style={styles.input}
-          onChangeText={onChangeNumber}
-          value={number}
+          onChangeText={onChangePassword}
+          value={password}
           placeholderTextColor="black"
           placeholder="Нууц үг"
           keyboardType="numeric"
+          secureTextEntry
         />
         <Link href="(app)/homepage" style={styles.link}>
           Нэвтрэх
         </Link>
+
+        {/* 
+
+          1. firebase signInWithMobileNumber ashiglaj otp verification hiine
+          2. firebase firestore ashiglaj hereglegch burtgene
+          3. firebase firestore ashiglaj hereglegch sign up hiine
+
+        */}
       </ScrollView>
     </SafeAreaView>
   );

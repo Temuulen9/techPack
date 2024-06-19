@@ -1,17 +1,10 @@
 import { Link } from "expo-router";
-import React from "react";
-import {
-  Text,
-  TextInput,
-  StyleSheet,
-  SafeAreaView,
-  Button,
-  ScrollView,
-} from "react-native";
+import React, { useState } from "react";
+import { TextInput, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 
 export default function Index() {
-  const [phoneNumber, onChangePhoneNumber] = React.useState("");
-  const [password, onChangePassword] = React.useState("");
+  const [phoneNumber, onChangePhoneNumber] = useState("");
+  const [password, onChangePassword] = useState("");
 
   const styles = StyleSheet.create({
     safeAreaView: {

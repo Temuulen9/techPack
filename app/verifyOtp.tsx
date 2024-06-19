@@ -1,28 +1,22 @@
-// import { FIREBASE_AUTH } from "@/FirebaseConfig";
-// import { Link } from "expo-router";
-// import { signInWithPhoneNumber, ApplicationVerifier } from "firebase/auth";
-// import { firebase } from "@react-native-firebase/auth";
-
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-
-import React, { useRef } from "react";
+import { router } from "expo-router";
+import React, { useRef, useState } from "react";
 import {
   Text,
   TextInput,
   StyleSheet,
   SafeAreaView,
-  Button,
   ScrollView,
   View,
+  Pressable,
 } from "react-native";
 import OTPTextView from "react-native-otp-textinput";
 
 export default function Index() {
-  const [phoneNumber, onChangephoneNumber] = React.useState("");
-  const [otp, setOtp] = React.useState("");
-  const [showOtp, setShowOtp] = React.useState(false);
-  const [confirm, setConfirm] = React.useState<any>(null);
+  const [phoneNumber, onChangephoneNumber] = useState("");
+  const [confirm, setConfirm] = useState<any>(null);
+  const [otpSent, setOtpSent] = useState(false);
   const input = useRef<OTPTextView>(null);
 
   const styles = StyleSheet.create({
@@ -35,6 +29,7 @@ export default function Index() {
       height: 40,
       borderWidth: 1,
       padding: 10,
+      marginVertical: 15,
     },
     link: {
       alignSelf: "center",
@@ -44,33 +39,73 @@ export default function Index() {
     textInputContainer: {
       marginBottom: 25,
     },
+    button: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 12,
+      paddingHorizontal: 32,
+      borderRadius: 4,
+      elevation: 3,
+      backgroundColor: "black",
+      marginVertical: 7,
+    },
+    text: {
+      fontSize: 16,
+      lineHeight: 21,
+      fontWeight: "bold",
+      letterSpacing: 0.25,
+      color: "white",
+    },
   });
 
-  const handleCellTextChange = async (text: string, i: number) => {
-    setOtp(text);
-
-    if (i === 5) {
-      confirmCode();
+  const handleTextChange = (text: string) => {
+    if (text.length === 6) {
+      confirmCode(text);
     }
   };
 
   const sendCode = async () => {
-    setShowOtp(!showOtp);
+    if (!phoneNumber) {
+      console.log("enter required field");
+      return;
+    }
+    if (await userAlreadyExist()) {
+      console.log("Already exist");
+      return;
+    }
 
     try {
       const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-      setConfirm(confirmation.verificationId);
+      setConfirm(confirmation);
+      setOtpSent(true);
     } catch (error) {
       console.log("Error sending code " + error);
     }
   };
 
-  const confirmCode = async () => {
+  const userAlreadyExist = async () => {
+    const user = await firestore()
+      .collection("users")
+      .where("mobile_number", "==", phoneNumber)
+      .get();
+
+    return !user.empty;
+  };
+
+  const confirmCode = async (otp: string) => {
     try {
-      const userCredential = await confirm.confirm(otp);
-      const user = userCredential.user;
-      console.log(userCredential);
-      console.log(user);
+      if (confirm) {
+        const userCredential = await confirm.confirm(otp);
+        const user = userCredential.user;
+
+        /// verification valid bolson tohioldold register delgetsruu ochno
+        if (user) {
+          router.push("/register");
+        }
+        /// verification buruu bolson uyiin logic
+        else {
+        }
+      }
     } catch (error) {
       console.log("Error confirm code " + error);
     }
@@ -88,12 +123,11 @@ export default function Index() {
           value={phoneNumber}
         />
 
-        {showOtp ? (
+        {otpSent ? (
           <OTPTextView
             ref={input}
             containerStyle={styles.textInputContainer}
-            handleTextChange={setOtp}
-            handleCellTextChange={handleCellTextChange}
+            handleTextChange={handleTextChange}
             inputCount={6}
             keyboardType="numeric"
             tintColor="#000000"
@@ -102,7 +136,11 @@ export default function Index() {
           <View></View>
         )}
 
-        <Button title="Утасны дугаар баталгаажуулах" onPress={sendCode} />
+        <Pressable style={styles.button} onPress={sendCode}>
+          <Text style={styles.text}>
+            {otpSent ? "Дахин илгээх" : "Утасны дугаар баталгаажуулах"}
+          </Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

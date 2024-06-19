@@ -2,15 +2,16 @@ import { Stack } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <Stack>
+    <Stack initialRouteName="login">
       <Stack.Screen
         name="index"
-        options={{ headerShown: false, title: "Нүүр хуудас" }}
+        options={{ headerShown: true, title: "Tech Pack" }}
       />
       <Stack.Screen name="login" options={{ title: "Нэвтрэх" }} />
       <Stack.Screen name="verifyOtp" options={{ title: "Бүртгүүлэх" }} />
+      <Stack.Screen name="register" options={{ title: "Бүртгүүлэх" }} />
       <Stack.Screen
-        name="(app)"
+        name="homepage"
         options={{
           title: "Home Page",
           headerBackVisible: false,

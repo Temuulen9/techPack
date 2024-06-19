@@ -46,14 +46,6 @@ export default function Index() {
         <Link href="(app)/homepage" style={styles.link}>
           Нэвтрэх
         </Link>
-
-        {/* 
-
-          1. firebase signInWithMobileNumber ashiglaj otp verification hiine
-          2. firebase firestore ashiglaj hereglegch burtgene
-          3. firebase firestore ashiglaj hereglegch sign up hiine
-
-        */}
       </ScrollView>
     </SafeAreaView>
   );

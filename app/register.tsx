@@ -5,27 +5,39 @@ import {
   ScrollView,
   Pressable,
   Text,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
+import bcrypt from "react-native-bcrypt";
+import firestore from "@react-native-firebase/firestore";
+import Toast from "react-native-toast-message";
 
 const Register = () => {
-  const [password, onChangePassword] = useState("");
+  const { phoneNumber } = useLocalSearchParams();
 
-  /// phoneNumber verifyOtp delgetsees damjuulna
-  const [phoneNumber, setphoneNumber] = useState("");
+  const [password, onChangePassword] = useState("");
+  const [passwordValidation, onChangePasswordValidation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const saltRounds = 10;
 
   const styles = StyleSheet.create({
     safeAreaView: {
       flex: 1,
-      marginHorizontal: 15,
-      marginVertical: 20,
+      justifyContent: "center",
+      backgroundColor: "white",
+      paddingHorizontal: 20,
+      paddingVertical: 15,
     },
     input: {
-      height: 40,
+      height: 45,
+      marginVertical: 15,
       borderWidth: 1,
       padding: 10,
-      marginVertical: 15,
+      borderBlockColor: "gray",
+      borderColor: "gray",
+      borderRadius: 8,
+      tintColor: "gray",
     },
     link: {
       alignSelf: "center",
@@ -37,59 +49,95 @@ const Register = () => {
       justifyContent: "center",
       paddingVertical: 12,
       paddingHorizontal: 32,
-      borderRadius: 4,
-      elevation: 3,
-      backgroundColor: "black",
+      borderRadius: 10,
+      elevation: 10,
+      backgroundColor: "#0081ff",
       marginVertical: 7,
     },
     text: {
       fontSize: 16,
       lineHeight: 21,
-      fontWeight: "bold",
+      fontWeight: "400",
       letterSpacing: 0.25,
       color: "white",
     },
   });
 
   const register = () => {
-    /// burtgel amjilttai bolson tohioldold dismissAll hiine
-    router.dismissAll();
+    if (!(password && passwordValidation)) {
+      Toast.show({
+        type: "error",
+        text1: "Шаардлагатай талбаруудыг бөглөнө үү.",
+      });
+      return;
+    }
+    if (password != passwordValidation) {
+      Toast.show({
+        type: "error",
+        text1: "Нууц үг ялгаатай байна.",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    bcrypt.hash(password, saltRounds, function (err, hash) {
+      firestore()
+        .collection("users")
+        .add({
+          phoneNumber: phoneNumber,
+          password: hash,
+        })
+        .then(() => {
+          setIsLoading(false);
+          Toast.show({
+            type: "success",
+            text1: "Бүртгэл амжилттай.",
+          });
+          router.dismissAll();
+          router.push("/homepage");
+        });
+    });
   };
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <ScrollView>
-        <TextInput
-          style={styles.input}
-          placeholder="Утасны дугаар"
-          placeholderTextColor="black"
-          keyboardType="phone-pad"
-          value={phoneNumber}
-          aria-disabled={true}
-          editable={false}
-          selectTextOnFocus={false}
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangePassword}
-          value={password}
-          placeholderTextColor="black"
-          placeholder="Нууц үг"
-          keyboardType="numeric"
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangePassword}
-          value={password}
-          placeholderTextColor="black"
-          placeholder="Нууц үг баталгаажуулалт"
-          keyboardType="numeric"
-          secureTextEntry
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="Утасны дугаар"
+        placeholderTextColor="gray"
+        keyboardType="phone-pad"
+        value={phoneNumber as any}
+        editable={false}
+      />
+      <TextInput
+        style={styles.input}
+        onChangeText={onChangePassword}
+        value={password}
+        placeholderTextColor="gray"
+        placeholder="Нууц үг"
+        keyboardType="numeric"
+        secureTextEntry
+        editable={!isLoading}
+      />
+      <TextInput
+        style={styles.input}
+        onChangeText={onChangePasswordValidation}
+        value={passwordValidation}
+        placeholderTextColor="gray"
+        placeholder="Нууц үг баталгаажуулалт"
+        keyboardType="numeric"
+        secureTextEntry
+        editable={!isLoading}
+      />
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0081ff" />
+      ) : (
         <Pressable style={styles.button} onPress={register}>
           <Text style={styles.text}>Бүртгүүлэх</Text>
         </Pressable>
-      </ScrollView>
+      )}
+
+      <Toast />
     </SafeAreaView>
   );
 };

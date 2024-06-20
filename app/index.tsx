@@ -6,24 +6,32 @@ import {
   StyleSheet,
   SafeAreaView,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import firestore from "@react-native-firebase/firestore";
+import bcrypt from "react-native-bcrypt";
+import Toast from "react-native-toast-message";
 
 export default function Index() {
   const [phoneNumber, onChangePhoneNumber] = useState("");
   const [password, onChangePassword] = useState("");
-
+  const [isLoading, setIsLoading] = useState(false);
   const styles = StyleSheet.create({
     safeAreaView: {
       flex: 1,
-      marginHorizontal: 20,
       justifyContent: "center",
+      backgroundColor: "white",
+      paddingHorizontal: 20,
     },
     input: {
-      height: 40,
+      height: 45,
       marginVertical: 15,
       borderWidth: 1,
       padding: 10,
+      borderBlockColor: "gray",
+      borderColor: "gray",
+      borderRadius: 8,
+      tintColor: "gray",
     },
     link: {
       alignSelf: "center",
@@ -35,15 +43,15 @@ export default function Index() {
       justifyContent: "center",
       paddingVertical: 12,
       paddingHorizontal: 32,
-      borderRadius: 4,
-      elevation: 3,
-      backgroundColor: "black",
+      borderRadius: 10,
+      elevation: 10,
+      backgroundColor: "#0081ff",
       marginVertical: 7,
     },
     text: {
       fontSize: 16,
       lineHeight: 21,
-      fontWeight: "bold",
+      fontWeight: "400",
       letterSpacing: 0.25,
       color: "white",
     },
@@ -54,25 +62,52 @@ export default function Index() {
       if (phoneNumber && password) {
         const user = await firestore()
           .collection("users")
-          .where("mobile_number", "==", phoneNumber)
+          .where("phoneNumber", "==", phoneNumber)
           .get();
 
         if (user.empty) {
-          console.log("Please register");
+          Toast.show({
+            type: "info",
+            text1: "Бүртгэлгүй хэрэглэгч байна.",
+            text2: "Бүртгүүлэх товч дээр дарж бүртгүүлнэ үү.",
+          });
         } else {
-          onChangePhoneNumber("");
-          onChangePassword("");
-          router.push("homepage");
+          setIsLoading(true);
+          const hashedPassword = user.docs[0].data().password;
+          bcrypt.compare(password, hashedPassword, function (err, res) {
+            if (res) {
+              onChangePhoneNumber("");
+              onChangePassword("");
+              router.push("homepage");
+            } else {
+              onChangePassword("");
+              Toast.show({
+                type: "error",
+                text1: "Нууц үг буруу байна.",
+              });
+            }
+            setIsLoading(false);
+          });
         }
       } else {
-        console.log("Enter required fields!");
+        Toast.show({
+          type: "info",
+          text1: "Шаардлагатай талбаруудыг бөглөнө үү.",
+        });
       }
     } catch (error) {
+      Toast.show({
+        type: "info",
+        text1: "Алдаа гарлаа",
+        text2: "Алдаа" + { error },
+      });
       console.log("Login error " + error);
     }
   };
 
   const signUp = () => {
+    onChangePhoneNumber("");
+    onChangePassword("");
     router.push("verifyOtp");
   };
   return (
@@ -81,27 +116,36 @@ export default function Index() {
         style={styles.input}
         onChangeText={onChangePhoneNumber}
         placeholder="Утасны дугаар"
-        placeholderTextColor="black"
+        placeholderTextColor="gray"
         keyboardType="phone-pad"
         value={phoneNumber}
+        editable={!isLoading}
       />
       <TextInput
         style={styles.input}
         onChangeText={onChangePassword}
         value={password}
-        placeholderTextColor="black"
+        placeholderTextColor="gray"
         placeholder="Нууц үг"
         keyboardType="default"
         secureTextEntry
+        editable={!isLoading}
       />
 
-      <Pressable style={styles.button} onPress={logIn}>
-        <Text style={styles.text}>Нэвтрэх</Text>
-      </Pressable>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0081ff" />
+      ) : (
+        <>
+          <Pressable style={styles.button} onPress={logIn}>
+            <Text style={styles.text}>Нэвтрэх</Text>
+          </Pressable>
 
-      <Pressable style={styles.button} onPress={signUp}>
-        <Text style={styles.text}>Бүртгүүлэх</Text>
-      </Pressable>
+          <Pressable style={styles.button} onPress={signUp}>
+            <Text style={styles.text}>Бүртгүүлэх</Text>
+          </Pressable>
+        </>
+      )}
+      <Toast />
     </SafeAreaView>
   );
 }
